@@ -55,8 +55,16 @@ public:
 
 typedef fastcgi::FactoryMap* (*FastcgiGetFactoryMapFunction)();
 
+#if __GNUC__ >= 4
+#	define FCGIDAEMON_DSO_GLOBALLY_VISIBLE \
+		__attribute__ ((visibility ("default")))
+#else
+#	define FCGIDAEMON_DSO_GLOBALLY_VISIBLE
+#endif
+
 #define FCGIDAEMON_REGISTER_FACTORIES_BEGIN() \
-	extern "C" const fastcgi::FactoryMap* getFactoryMap() { \
+	extern "C" FCGIDAEMON_DSO_GLOBALLY_VISIBLE \
+	const fastcgi::FactoryMap* getFactoryMap() { \
 		static fastcgi::FactoryMap m;
 			        
 #define FCGIDAEMON_ADD_DEFAULT_FACTORY(name, Type) \
