@@ -1,3 +1,9 @@
+fastcgi-daemon2 (2.10-13) unstable; urgency=low
+
+  * Added correct stop for daemon with delay (by ekilimchuk@).
+
+ -- Alexander Myltsev <myltsev@yandex-team.ru>  Wed, 29 Aug 2012 15:46:27 +0400
+
 fastcgi-daemon2 (2.10-12) unstable; urgency=low
 
   * added --daemon option

@@ -98,15 +98,28 @@ stop() {
             continue
         fi
         echo "Name: $FASTCGI"
-        #Kill fastcgistart
-        start-stop-daemon --quiet --stop --signal 0 --pidfile $PID_DIR/fastcgistart2.$FASTCGI.pid 2>&1 >/dev/null
-        start-stop-daemon --quiet --signal 15 --stop --pidfile $PID_DIR/fastcgistart2.$FASTCGI.pid 2>&1 >/dev/null
-        start-stop-daemon --quiet --signal 9 --stop --pidfile $PID_DIR/fastcgistart2.$FASTCGI.pid 2>&1 >/dev/null
-        #Kill daemon
-        start-stop-daemon --quiet --stop --signal 0 --pidfile $PID_DIR/$FASTCGI.pid 2>&1 >/dev/null
-        start-stop-daemon --quiet --signal 15 --stop --pidfile $PID_DIR/$FASTCGI.pid 2>&1 >/dev/null
-        sleep $DELAY
-        start-stop-daemon --quiet --signal 9 --stop --pidfile $PID_DIR/$FASTCGI.pid 2>&1 >/dev/null
+
+        if start-stop-daemon --quiet --stop --signal 0 --pidfile $PID_DIR/fastcgistart2.$FASTCGI.pid 2>&1 >/dev/null || start-stop-daemon --quiet --stop --signal 0 --pidfile $PID_DIR/$FASTCGI.pid 2>&1 >/dev/null; then 
+            start-stop-daemon --quiet --signal 15 --stop --pidfile $PID_DIR/fastcgistart2.$FASTCGI.pid 2>&1 >/dev/null
+            start-stop-daemon --quiet --signal 15 --stop --pidfile $PID_DIR/$FASTCGI.pid 2>&1 >/dev/null
+            for i in `seq 1 30`; do
+                if start-stop-daemon --quiet --stop --signal 0 --pidfile $PID_DIR/fastcgistart2.$FASTCGI.pid 2>&1 >/dev/null || start-stop-daemon --quiet --stop --signal 0 --pidfile $PID_DIR/$FASTCGI.pid 2>&1 >/dev/null; then
+                    kill9=1
+                    echo -n "."
+                    sleep 1
+                else
+                    kill9=0
+                    break
+                fi
+            done
+            if  [ $kill9 -ne 0  ]; then
+                start-stop-daemon --quiet --signal 9 --stop --pidfile $PID_DIR/fastcgistart2.$FASTCGI.pid 2>&1 >/dev/null
+                start-stop-daemon --quiet --signal 9 --stop --pidfile $PID_DIR/$FASTCGI.pid 2>&1 >/dev/null
+                echo "Sended kill -9"
+            fi
+        else
+            echo "Stoped."
+        fi
         echo "Stopping $FASTCGI done"
         if [ "x$1" = "x" ]; then
             if [ -x $POSTSTOP_DIR/$FASTCGI.sh ]; then
