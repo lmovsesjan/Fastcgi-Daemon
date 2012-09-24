@@ -36,10 +36,10 @@ class RequestsThreadPool;
 
 class Globals : private boost::noncopyable {
 public:
-	Globals(Config *config);
+	Globals(const Config *config);
 	virtual ~Globals();
 
-	Config* config() const;
+	const Config* config() const;
 
 	typedef std::map<std::string, boost::shared_ptr<RequestsThreadPool> > ThreadPoolMap;
 
@@ -59,7 +59,7 @@ private:
 
 private:
 	ThreadPoolMap pools_;
-	Config* config_;
+	const Config* config_;
 	std::auto_ptr<Loader> loader_;
 	std::auto_ptr<HandlerSet> handlerSet_;
 	std::auto_ptr<ComponentSet> componentSet_;

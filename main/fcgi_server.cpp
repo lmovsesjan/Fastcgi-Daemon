@@ -88,8 +88,6 @@ FCGIServer::start() {
 
 	status_ = LOADING;
 
-	pid(globals_->config()->asString("/fastcgi/daemon/pidfile"));
-
 	logTimes_ = globals_->config()->asInt("/fastcgi/daemon/log-times", 0);
 
 	initMonitorThread();
@@ -372,7 +370,8 @@ FCGIServer::monitor() {
 }
 
 void
-FCGIServer::pid(const std::string &file) {
+FCGIServer::writePid(const Config& config) {
+	const std::string& file = config.asString("/fastcgi/daemon/pidfile");
 	try {
 		std::ofstream f(file.c_str());
 		f.exceptions(std::ios::badbit);

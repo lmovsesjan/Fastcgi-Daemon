@@ -71,6 +71,8 @@ protected:
 public:
 	FCGIServer(boost::shared_ptr<Globals> globals);
 	virtual ~FCGIServer();
+
+	static void writePid(const Config& config);
 	void start();
 	void stop();
 	void join();
@@ -84,8 +86,6 @@ private:
 
 	std::string getServerInfo() const;
 
-	void pid(const std::string &file);
-    
 	void initMonitorThread();
 	void initRequestCache();
 	void initTimeStatistics();

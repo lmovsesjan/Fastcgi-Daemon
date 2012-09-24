@@ -102,7 +102,8 @@ main(int argc, char *argv[]) {
 			}
 		}
 
-		std::auto_ptr<Config> config = Config::create(argc, argv);
+		boost::scoped_ptr<Config> config(Config::create(argc, argv));
+		FCGIServer::writePid(*config);
 		boost::shared_ptr<Globals> globals(new Globals(config.get()));
 		FCGIServer server(globals);
 		::server = &server;

@@ -18,7 +18,7 @@
 namespace fastcgi
 {
 
-Globals::Globals(Config *config) : config_(config), loader_(new Loader()),
+Globals::Globals(const Config *config) : config_(config), loader_(new Loader()),
 	handlerSet_(new HandlerSet()), componentSet_(new ComponentSet()), logger_(NULL)
 {
 	loader_->init(config);
@@ -58,7 +58,7 @@ Globals::logger() const {
 	return logger_;
 }
 
-Config*
+const Config*
 Globals::config() const {
 	return config_;
 }
