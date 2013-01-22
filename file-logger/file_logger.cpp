@@ -43,6 +43,8 @@ FileLogger::FileLogger(ComponentContext *context) : Component(context),
     print_time_ =
         (0 == strcasecmp(config->asString(componentXPath + "/print-time", "yes").c_str(), "yes"));
 
+    time_format_ = config->asString(componentXPath + "/time-format", "[%Y/%m/%d %T]");
+
     std::string read = config->asString(componentXPath + "/read", "");
     if (!read.empty()) {
         if (read == "all") {
@@ -142,7 +144,7 @@ FileLogger::prepareFormat(char * buf, size_t size, const Logger::Level level, co
         time_t t;
         time(&t);
         localtime_r(&t, &tm);
-        strftime(timestr, sizeof(timestr) - 1, "[%Y/%m/%d %T]", &tm);
+        strftime(timestr, sizeof(timestr) - 1, time_format_.c_str(), &tm);
     }
 
     std::string level_str;

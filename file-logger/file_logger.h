@@ -31,6 +31,9 @@ private:
     // Open mode
     mode_t openMode_;
 
+    // Time format specification
+    std::string time_format_;
+
     bool print_level_;
     bool print_time_;
 

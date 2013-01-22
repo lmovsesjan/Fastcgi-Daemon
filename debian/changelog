@@ -1,3 +1,9 @@
+fastcgi-daemon2 (2.10-17) unstable; urgency=low
+
+  * Added configurable time format to file logger
+
+ -- Konstantin Karganov <karganov@yandex-team.ru>  Tue, 22 Jan 2013 18:02:08 +0400
+
 fastcgi-daemon2 (2.10-16) unstable; urgency=low
 
   * fixed copy/past
