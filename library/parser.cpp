@@ -144,6 +144,7 @@ static const std::string MINUS_PREFIX_STRING = "--";
 static const std::string NAME_STRING = "name";
 static const std::string FILENAME_STRING = "filename";
 static const std::string CONTENT_TYPE_STRING = "CONTENT_TYPE";
+static const std::string CONTENT_TYPE_HEADER = "Content-Type";
 
 void
 Parser::parseLine(DataBuffer line, DataBuffer &name, DataBuffer &filename, DataBuffer &type) {
@@ -159,6 +160,13 @@ Parser::parseLine(DataBuffer line, DataBuffer &name, DataBuffer &filename, DataB
 		}
 		else if (CONTENT_TYPE_STRING.size() == key.size() && key.startsWithCI(CONTENT_TYPE_STRING)) {
 			type = value.trim();
+		}
+		else {
+			head.split(':', key, value);
+
+			if (CONTENT_TYPE_HEADER.size() == key.size() && key.startsWith(CONTENT_TYPE_HEADER)) {
+				type = value.trim();
+			}
 		}
 		line = tail.trim();
 	}
