@@ -27,41 +27,41 @@ Description: fastcgi-daemon is an application server for FastCGI
 Package: libfastcgi-daemon2-dev
 Section: libdevel
 Architecture: any
-Depends: libfastcgi-daemon2 (=${Source-Version}), libboost-regex-dev, libfcgi-dev
+Depends: libfastcgi-daemon2 (=${source:Version}), libboost-regex-dev, libfcgi-dev
 Description: fastcgi-daemon is an application server for FastCGI
  applications wtiteen in C++. Headers and libraries to develop modules.
 
 Package: libfastcgi2-syslog
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, libfastcgi-daemon2 (=${Source-Version})
+Depends: ${shlibs:Depends}, libfastcgi-daemon2 (=${source:Version})
 Description: fastcgi-daemon is an application server for FastCGI
  applications wtiteen in C++. Binary to execute server.
 
 Package: libfastcgi2-filelogger
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, libfastcgi-daemon2 (=${Source-Version})
+Depends: ${shlibs:Depends}, libfastcgi-daemon2 (=${source:Version})
 Description: fastcgi-daemon is an application server for FastCGI
  applications wtiteen in C++. Binary to execute server.
 
 Package: libfastcgi2-statistics
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, libfastcgi-daemon2 (=${Source-Version})
+Depends: ${shlibs:Depends}, libfastcgi-daemon2 (=${source:Version})
 Description: fastcgi-daemon is an application server for FastCGI
  applications wtiteen in C++. Binary to execute server.
 
 Package: fastcgi-daemon2
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, libfastcgi-daemon2 (=${Source-Version})
+Depends: ${shlibs:Depends}, libfastcgi-daemon2 (=${source:Version})
 Description: fastcgi-daemon is an application server for FastCGI
  applications wtiteen in C++. Binary to execute server.
 
 Package: fastcgi-daemon2-init
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, fastcgi-daemon2 (=${Source-Version})
+Depends: ${shlibs:Depends}, fastcgi-daemon2 (=${source:Version})
 Description: fastcgi-daemon-init is init scripts packet for fastcgi-daemon
 
