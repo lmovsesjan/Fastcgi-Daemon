@@ -18,15 +18,14 @@
 #ifndef _FASTCGI_DETAILS_THREAD_POOL_H_
 #define _FASTCGI_DETAILS_THREAD_POOL_H_
 
-#include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <queue>
+#include <functional>
+#include <condition_variable>
 
 namespace fastcgi {
 
@@ -65,7 +64,7 @@ public:
 	}
 
 	void start(InitFuncType func) {
-		boost::mutex::scoped_lock lock(mutex_);
+		std::lock_guard<std::mutex> lock(mutex_);
 		if (info_.started) {
 			return;
 		}
@@ -73,7 +72,7 @@ public:
 //			throw std::runtime_error("Invalid thread pool state.");
 //		}
 
-		boost::function<void()> f = boost::bind(&ThreadPool<T>::workMethod, this, func);
+		boost::function<void()> f = std::bind(&ThreadPool<T>::workMethod, this, func);
 		for (unsigned i = 0; i < info_.threadsNumber; ++i) {
 			threads_.create_thread(f);
 		}
@@ -83,7 +82,7 @@ public:
 
 	void stop() {
 		{
-			boost::mutex::scoped_lock lock(mutex_);
+			std::unique_lock<std::mutex> lock(mutex_);
 			info_.started = false;
 			condition_.notify_all();
 		}
@@ -95,7 +94,7 @@ public:
 
 	void addTask(T task) {
 		try {
-			boost::mutex::scoped_lock lock(mutex_);
+			std::unique_lock<std::mutex> lock(mutex_);
 
 			if (!info_.started) {
 				throw std::runtime_error("Thread pool is not started yet");
@@ -114,7 +113,7 @@ public:
 	}
 
 	ThreadPoolInfo getInfo() const {
-		boost::mutex::scoped_lock lock(mutex_);
+		std::lock_guard<std::mutex> lock(mutex_);
 		info_.currentQueue = tasksQueue_.size();
 		return info_;
 	}
@@ -140,7 +139,7 @@ private:
 			{
 				T task;
 				{
-					boost::mutex::scoped_lock lock(mutex_);
+					std::unique_lock<std::mutex> lock(mutex_);
 					switch (state) {
 					case none:
 						break;
@@ -181,8 +180,8 @@ private:
 	}
 
 private:
-	mutable boost::mutex mutex_;
-	boost::condition condition_;
+	mutable std::mutex mutex_;
+	std::condition_variable condition_;
 	boost::thread_group threads_;
 	std::queue<T> tasksQueue_;
 	mutable ThreadPoolInfo info_;

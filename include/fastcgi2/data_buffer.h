@@ -19,9 +19,8 @@
 #define _FASTCGI_DATA_BUFFER_H_
 
 #include <utility>
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
+#include <cstdint>
 
 namespace fastcgi
 {
@@ -34,17 +33,17 @@ class DataBufferImpl;
 
 class DataBuffer {
 public:
-	static DataBuffer create(const char *data, boost::uint64_t size);
+	static DataBuffer create(const char *data, std::uint64_t size);
 	static DataBuffer create(DataBufferImpl *impl);
 
 	DataBuffer();
-	DataBuffer(DataBuffer buffer, boost::uint64_t begin, boost::uint64_t end);
+	DataBuffer(DataBuffer buffer, std::uint64_t begin, std::uint64_t end);
 
-	char at(boost::uint64_t pos) const;
+	char at(std::uint64_t pos) const;
 	bool isNil() const;
 	bool empty() const;
-	boost::uint64_t size() const;
-	void resize(boost::uint64_t size);
+	std::uint64_t size() const;
+	void resize(std::uint64_t size);
 
 	class SegmentIterator;
 	friend class SegmentIterator;
@@ -53,7 +52,7 @@ public:
 	SegmentIterator end() const;
 
 	DataBuffer trim() const;
-	DataBuffer trimn(boost::uint64_t b, boost::uint64_t e) const;
+	DataBuffer trimn(std::uint64_t b, std::uint64_t e) const;
 	bool split(const std::string &delim, DataBuffer &first, DataBuffer &second) const;
 	bool split(char delim, DataBuffer &first, DataBuffer &second) const;
 	bool startsWith(const std::string &data) const;
@@ -62,29 +61,29 @@ public:
 	bool endsWithCI(const std::string &data) const;
 	void toString(std::string &str) const;
 
-	boost::uint64_t read(boost::uint64_t pos, char *data, boost::uint64_t len);
-	boost::uint64_t write(boost::uint64_t pos, const char *data, boost::uint64_t len);
+	std::uint64_t read(std::uint64_t pos, char *data, std::uint64_t len);
+	std::uint64_t write(std::uint64_t pos, const char *data, std::uint64_t len);
 
-	boost::uint64_t beginIndex() const;
-	boost::uint64_t endIndex() const;
+	std::uint64_t beginIndex() const;
+	std::uint64_t endIndex() const;
 
 	DataBufferImpl* impl() const;
 
 private:
-	void checkIndex(boost::uint64_t index) const;
-	boost::uint64_t find(boost::uint64_t pos, const char* buf, boost::uint64_t len) const;
+	void checkIndex(std::uint64_t index) const;
+	std::uint64_t find(std::uint64_t pos, const char* buf, std::uint64_t len) const;
 
 private:
-	boost::shared_ptr<DataBufferImpl> data_;
-	boost::uint64_t begin_;
-	boost::uint64_t end_;
+	std::shared_ptr<DataBufferImpl> data_;
+	std::uint64_t begin_;
+	std::uint64_t end_;
 };
 
 class DataBuffer::SegmentIterator {
 public:
 	SegmentIterator();
-	std::pair<char*, boost::uint64_t> operator*() const;
-	std::pair<char*, boost::uint64_t>* operator->() const;
+	std::pair<char*, std::uint64_t> operator*() const;
+	std::pair<char*, std::uint64_t>* operator->() const;
 	SegmentIterator& operator++();
 	SegmentIterator operator++(int);
 	SegmentIterator& operator--();
@@ -97,9 +96,9 @@ private:
 	DataBufferImpl* impl() const;
 private:
 	DataBuffer buffer_;
-	boost::uint64_t pos_begin_;
-	boost::uint64_t pos_end_;
-	mutable std::pair<char*, boost::uint64_t> data_;
+	std::uint64_t pos_begin_;
+	std::uint64_t pos_end_;
+	mutable std::pair<char*, std::uint64_t> data_;
 };
 
 bool operator==(const DataBuffer::SegmentIterator &lhs, const DataBuffer::SegmentIterator &rhs);

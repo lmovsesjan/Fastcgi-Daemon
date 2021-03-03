@@ -5,8 +5,9 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <mutex>
+#include <thread>
 
-#include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>
 
 #include "details/server.h"
@@ -28,16 +29,16 @@ public:
 	ServerStopper() : stopped_(false) {}
 
 	void stopped(bool flag) {
-		boost::mutex::scoped_lock lock(mutex_);
+		std::lock_guard<std::mutex> lock(mutex_);
 		stopped_ = flag;
 	}
 
 	bool stopped() const {
-		boost::mutex::scoped_lock lock(mutex_);
+		std::lock_guard<std::mutex> lock(mutex_);
 		return stopped_;
 	}
 private:
-	mutable boost::mutex mutex_;
+	mutable std::mutex mutex_;
 	bool stopped_;
 };
 
@@ -46,21 +47,21 @@ public:
 	ActiveThreadCounter() : count_(0)
 	{}
 	void increment() {
-		boost::mutex::scoped_lock lock(mutex_);
+		std::lock_guard<std::mutex> lock(mutex_);
 		++count_;
 	}
 	void decrement() {
-		boost::mutex::scoped_lock lock(mutex_);
+		std::lock_guard<std::mutex> lock(mutex_);
 		--count_;
 	}
 
 	int count() const {
-		boost::mutex mutex_;
+		std::lock_guard<std::mutex> lock(mutex_);
 		return count_;
 	}
 
 private:
-	boost::mutex mutex_;
+	mutable std::mutex mutex_;
 	int count_;
 };
 
@@ -69,7 +70,7 @@ protected:
 	enum Status {NOT_INITED, LOADING, RUNNING};
 
 public:
-	FCGIServer(boost::shared_ptr<Globals> globals);
+	FCGIServer(std::shared_ptr<Globals> globals);
 	virtual ~FCGIServer();
 
 	static void writePid(const Config& config);
@@ -100,23 +101,23 @@ private:
 	Status status() const;
 
 private:
-	boost::shared_ptr<Globals> globals_;
-	boost::shared_ptr<ServerStopper> stopper_;
+	std::shared_ptr<Globals> globals_;
+	std::shared_ptr<ServerStopper> stopper_;
 
 	typedef char ThreadHolder;
-	boost::shared_ptr<ThreadHolder> active_thread_holder_;
+	std::shared_ptr<ThreadHolder> active_thread_holder_;
 
-	std::vector<boost::shared_ptr<Endpoint> > endpoints_;
+	std::vector<std::shared_ptr<Endpoint> > endpoints_;
 	int monitorSocket_;
 	
 	RequestCache *request_cache_;
 	ResponseTimeStatistics *time_statistics_;
 	
-	mutable boost::mutex statusInfoMutex_;
+	mutable std::mutex statusInfoMutex_;
 	Status status_;
 
-	std::auto_ptr<boost::thread> monitorThread_;
-	std::auto_ptr<boost::thread> stopThread_;
+	std::unique_ptr<std::thread> monitorThread_;
+	std::unique_ptr<std::thread> stopThread_;
 	int stopPipes_[2];
 
 	bool logTimes_;

@@ -20,9 +20,9 @@
 
 #include <map>
 #include <string>
+#include <memory>
 
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 
 namespace fastcgi
 {
@@ -41,7 +41,7 @@ public:
 
 	const Config* config() const;
 
-	typedef std::map<std::string, boost::shared_ptr<RequestsThreadPool> > ThreadPoolMap;
+	typedef std::map<std::string, std::shared_ptr<RequestsThreadPool> > ThreadPoolMap;
 
 	ComponentSet* components() const;
 	HandlerSet* handlers() const;
@@ -60,9 +60,9 @@ private:
 private:
 	ThreadPoolMap pools_;
 	const Config* config_;
-	std::auto_ptr<Loader> loader_;
-	std::auto_ptr<HandlerSet> handlerSet_;
-	std::auto_ptr<ComponentSet> componentSet_;
+	std::unique_ptr<Loader> loader_;
+	std::unique_ptr<HandlerSet> handlerSet_;
+	std::unique_ptr<ComponentSet> componentSet_;
 	Logger* logger_;
 };
 

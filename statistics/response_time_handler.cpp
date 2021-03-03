@@ -16,34 +16,34 @@
 namespace fastcgi
 {
 
-CounterData::CounterData() : min_(std::numeric_limits<boost::uint64_t>::max()),
+CounterData::CounterData() : min_(std::numeric_limits<std::uint64_t>::max()),
 	max_(0), total_(0), hits_(0)
 {}
 
 void
-CounterData::add(boost::uint64_t time) {
+CounterData::add(std::uint64_t time) {
 	total_ += time;
 	++hits_;
 	min_ = std::min(min_, time);
 	max_ = std::max(max_, time);
 }
 
-boost::uint64_t
+std::uint64_t
 CounterData::min() const {
 	return min_;
 }
 
-boost::uint64_t
+std::uint64_t
 CounterData::max() const {
 	return max_;
 }
 
-boost::uint64_t
+std::uint64_t
 CounterData::avg() const {
 	return hits_ ? total_/hits_ : 0;
 }
 
-boost::uint64_t
+std::uint64_t
 CounterData::hits() const {
 	return hits_;
 }
@@ -71,7 +71,7 @@ ResponseTimeHandler::handleRequest(Request *req, HandlerContext *handlerContext)
 	str << "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 	str << "<response-time>";
 	{
-		boost::mutex::scoped_lock lock(mutex_);
+		std::lock_guard<std::mutex> lock(mutex_);
 		for (std::map<std::string, CounterMapType>::iterator iter = data_.begin();
 			 iter != data_.end();
 			 ++iter) {
@@ -96,12 +96,12 @@ ResponseTimeHandler::handleRequest(Request *req, HandlerContext *handlerContext)
 }
 
 void
-ResponseTimeHandler::add(const std::string &handler, unsigned short status, boost::uint64_t time) {
-	boost::mutex::scoped_lock lock(mutex_);
+ResponseTimeHandler::add(const std::string &handler, unsigned short status, std::uint64_t time) {
+	std::lock_guard<std::mutex> lock(mutex_);
 	CounterMapType& handle = data_[handler];
 	CounterMapType::iterator it = handle.find(status);
 	if (handle.end() == it) {
-		boost::shared_ptr<CounterData> counter(new CounterData);
+		std::shared_ptr<CounterData> counter(new CounterData);
 		counter->add(time);
 		handle.insert(std::make_pair(status, counter));
 	}

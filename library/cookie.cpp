@@ -14,7 +14,7 @@
 namespace fastcgi
 {
 
-static const time_t MAX_EXPIRES_TIME = std::numeric_limits<boost::int32_t>::max();
+static const time_t MAX_EXPIRES_TIME = std::numeric_limits<std::int32_t>::max();
 
 class Cookie::CookieData {
 public:

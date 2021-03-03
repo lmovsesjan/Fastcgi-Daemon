@@ -25,14 +25,14 @@ RequestsThreadPool::RequestsThreadPool(
 {}
 
 RequestsThreadPool::RequestsThreadPool(
-    const unsigned threadsNumber, const unsigned queueLength, boost::uint64_t delay, fastcgi::Logger *logger) :
+    const unsigned threadsNumber, const unsigned queueLength, std::uint64_t delay, fastcgi::Logger *logger) :
         ThreadPool<RequestTask>(threadsNumber, queueLength), logger_(logger), delay_(delay)
 {}
 
 RequestsThreadPool::~RequestsThreadPool()
 {}
 
-boost::uint64_t
+std::uint64_t
 RequestsThreadPool::delay() const {
 	return delay_;
 }
@@ -43,7 +43,7 @@ RequestsThreadPool::handleTask(RequestTask task) {
     	if (delay_) {
     		struct timeval t;
     		gettimeofday(&t, 0);
-    		boost::uint64_t now = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+    		std::uint64_t now = (t.tv_sec * 1000) + (t.tv_usec / 1000);
     		if (now - task.start > delay_) {
 				logger_->error("thread pool task is timed out");
 				task.request->sendError(503);
@@ -56,7 +56,7 @@ RequestsThreadPool::handleTask(RequestTask task) {
                 logger_req_id->setRequestId(task.request->getRequestId());
             }
 
-            std::auto_ptr<HandlerContext> context(new HandlerContextImpl);
+            std::unique_ptr<HandlerContext> context(new HandlerContextImpl);
             for (std::vector<Handler*>::iterator i = task.handlers.begin();
                  i != task.handlers.end();
                  ++i) {

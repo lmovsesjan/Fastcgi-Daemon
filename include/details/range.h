@@ -155,7 +155,7 @@ public:
 	std::string toString() const { 
 		return (NULL == begin()) ? std::string() : std::string(begin_, end_);
 	}
-
+	
 private:
 	
 	bool doSplit(const char* e, size_type size, Range& first, Range& second) const {

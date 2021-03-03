@@ -1,7 +1,7 @@
 #ifndef _FASTCGI_FASTCGI_ENDPOINT_H_
 #define _FASTCGI_FASTCGI_ENDPOINT_H_
 
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 
 namespace fastcgi
 {
@@ -39,7 +39,7 @@ private:
 	int socket_;
 	int busy_count_;
 	unsigned short threads_;
-	mutable boost::mutex mutex_;
+	mutable std::mutex mutex_;
 	std::string socket_path_, socket_port_;
 };
 

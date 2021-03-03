@@ -60,7 +60,7 @@ public:
 
 private:
     class CookieData;
-    std::auto_ptr<CookieData> data_;
+    std::unique_ptr<CookieData> data_;
 };
 
 } // namespace fastcgi

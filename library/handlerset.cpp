@@ -37,31 +37,31 @@ HandlerSet::init(const Config *config, const ComponentSet *componentSet) {
         std::string url_filter = config->asString(*k + "/@url", "");
         if (!url_filter.empty()) {
               handlerDesc.filters.push_back(std::make_pair(
-                  "url", boost::shared_ptr<RequestFilter>(new UrlFilter(url_filter))));
+                  "url", std::shared_ptr<RequestFilter>(new UrlFilter(url_filter))));
         }
 
         std::string host_filter = config->asString(*k + "/@host", "");
         if (!host_filter.empty()) {
               handlerDesc.filters.push_back(std::make_pair(
-                  "host", boost::shared_ptr<RequestFilter>(new HostFilter(host_filter))));
+                  "host", std::shared_ptr<RequestFilter>(new HostFilter(host_filter))));
         }
 
         std::string port_filter = config->asString(*k + "/@port", "");
         if (!port_filter.empty()) {
               handlerDesc.filters.push_back(std::make_pair(
-                  "port", boost::shared_ptr<RequestFilter>(new PortFilter(port_filter))));
+                  "port", std::shared_ptr<RequestFilter>(new PortFilter(port_filter))));
         }
 
         std::string address_filter = config->asString(*k + "/@address", "");
         if (!address_filter.empty()) {
               handlerDesc.filters.push_back(std::make_pair(
-                  "address", boost::shared_ptr<RequestFilter>(new AddressFilter(address_filter))));
+                  "address", std::shared_ptr<RequestFilter>(new AddressFilter(address_filter))));
         }
 
         std::string referer_filter = config->asString(*k + "/@referer", "");
         if (!referer_filter.empty()) {
               handlerDesc.filters.push_back(std::make_pair(
-                  "referer", boost::shared_ptr<RequestFilter>(new RefererFilter(referer_filter))));
+                  "referer", std::shared_ptr<RequestFilter>(new RefererFilter(referer_filter))));
         }
 
         std::vector<std::string> q;
@@ -76,7 +76,7 @@ HandlerSet::init(const Config *config, const ComponentSet *componentSet) {
                 continue;
             }
             handlerDesc.filters.push_back(std::make_pair(
-                "param", boost::shared_ptr<RequestFilter>(new ParamFilter(name, value))));
+                "param", std::shared_ptr<RequestFilter>(new ParamFilter(name, value))));
         }
 
         std::vector<std::string> components;

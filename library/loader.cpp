@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <map>
 #include <string.h>
-#include <boost/bind.hpp>
+#include <functional>
 
 #include <dlfcn.h>
 
@@ -25,7 +25,7 @@ Loader::Loader()
 }
 
 Loader::~Loader() {
-	std::for_each(handles_.rbegin(), handles_.rend(), boost::bind(&dlclose, _1));
+	std::for_each(handles_.rbegin(), handles_.rend(), std::bind(&dlclose, std::placeholders::_1));
 }
 
 void

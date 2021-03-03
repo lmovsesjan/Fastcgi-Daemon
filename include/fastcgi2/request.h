@@ -122,7 +122,7 @@ public:
     void flush();
 
 private:
-    std::auto_ptr<RequestImpl> impl_;
+    std::unique_ptr<RequestImpl> impl_;
 };
 
 } // namespace fastcgi

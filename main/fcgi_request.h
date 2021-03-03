@@ -9,8 +9,6 @@
 #include <memory>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
 #include "fastcgi2/request_io_stream.h"
 #include "details/handlerset.h"
 
@@ -24,7 +22,7 @@ class ResponseTimeStatistics;
 
 class FastcgiRequest : public RequestIOStream {
 public:
-    FastcgiRequest(boost::shared_ptr<Request> request, Endpoint *endpoint,
+    FastcgiRequest(std::shared_ptr<Request> request, Endpoint *endpoint,
     	Logger *logger, ResponseTimeStatistics *statistics, const bool logTimes);
     virtual ~FastcgiRequest();
     void attach();
@@ -37,7 +35,7 @@ public:
 	void setHandlerDesc(const HandlerSet::HandlerDescription *handler);
 	void flush();
 private:
-	boost::shared_ptr<Request> request_;
+	std::shared_ptr<Request> request_;
     Logger *logger_;
     std::string url_;
     std::string request_id_;
