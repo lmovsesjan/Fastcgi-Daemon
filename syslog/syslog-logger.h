@@ -6,6 +6,7 @@
 #include "fastcgi2/handler.h"
 
 #include <string>
+#include <boost/thread.hpp>
 
 namespace fastcgi
 {
@@ -36,7 +37,7 @@ private:
 	std::string ident_;
 	int priority_;
 	bool requestSpecificIdent_;
-	thread_local static std::unique_ptr<std::string> threadIdent_;
+	boost::thread_specific_ptr<std::string> threadIdent_;
 };
 
 } // namespace fastcgi
