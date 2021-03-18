@@ -1,5 +1,5 @@
 /* config/settings.h.  Generated from settings.h.in by configure.  */
-/* config/settings.h.in.  Generated from configure.in by autoheader.  */
+/* config/settings.h.in.  Generated from configure.ac by autoheader.  */
 
 /* define if the Boost library is available */
 #define HAVE_BOOST /**/
