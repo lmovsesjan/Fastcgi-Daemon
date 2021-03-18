@@ -100,7 +100,7 @@ void SyslogLogger::rollOver() {
 }
 
 void SyslogLogger::setRequestId(const std::string &id) {
-	threadIdent_.reset(new std::string(id));
+	threadIdent_ = std::make_unique<std::string>(id);
 }
 
 std::string SyslogLogger::getRequestId() {
