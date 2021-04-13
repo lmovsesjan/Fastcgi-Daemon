@@ -77,7 +77,7 @@ Globals::startThreadPools() {
 	for (ThreadPoolMap::iterator it = pools_.begin(); it != pools_.end(); ++it) {
 		std::set<Handler*> handlers;
 		handlerSet_->findPoolHandlers(it->first, handlers);
-		it->second->start(boost::bind(&startUpFunc, handlers));
+		it->second->start(std::bind(&startUpFunc, handlers));
 	}
 }
 
@@ -121,7 +121,7 @@ Globals::initPools() {
 			continue;
 		}
 
-		pools_.insert(make_pair(poolName, boost::shared_ptr<RequestsThreadPool>(delay ?
+		pools_.insert(make_pair(poolName, std::shared_ptr<RequestsThreadPool>(delay ?
 				new RequestsThreadPool(threadsNumber, queueLength, delay, logger_) :
 				new RequestsThreadPool(threadsNumber, queueLength, logger_))));
     }

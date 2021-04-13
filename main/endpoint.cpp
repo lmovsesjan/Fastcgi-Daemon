@@ -54,7 +54,7 @@ Endpoint::~Endpoint() {
 
 int
 Endpoint::socket() const {
-	boost::mutex::scoped_lock sl(mutex_);
+	std::lock_guard<std::mutex> sl(mutex_);
 	return socket_;
 }
 
@@ -70,13 +70,13 @@ Endpoint::toString() const {
 
 unsigned short
 Endpoint::getBusyCounter() const {
-	boost::mutex::scoped_lock sl(mutex_);
+	std::lock_guard<std::mutex> sl(mutex_);
 	return busy_count_;
 }
 
 void
 Endpoint::openSocket(const int backlog) {
-	boost::mutex::scoped_lock sl(mutex_);
+	std::lock_guard<std::mutex> sl(mutex_);
 	socket_ = FCGX_OpenSocket(toString().c_str(), backlog);
 	if (-1 == socket_) {
 		std::stringstream stream;
@@ -90,13 +90,13 @@ Endpoint::openSocket(const int backlog) {
 
 void
 Endpoint::incrementBusyCounter() {
-	boost::mutex::scoped_lock sl(mutex_);
+	std::lock_guard<std::mutex> sl(mutex_);
 	busy_count_ += 1;
 }
 
 void
 Endpoint::decrementBusyCounter() {
-	boost::mutex::scoped_lock sl(mutex_);
+	std::lock_guard<std::mutex> sl(mutex_);
 	assert(busy_count_ > 0);
 	busy_count_ -= 1;
 }

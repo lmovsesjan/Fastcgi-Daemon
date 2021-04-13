@@ -5,9 +5,9 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <functional>
 
 #include <boost/ref.hpp>
-#include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/checked_delete.hpp>
 #include <boost/current_function.hpp>
@@ -50,7 +50,7 @@
 namespace fastcgi
 {
 
-FCGIServer::FCGIServer(boost::shared_ptr<Globals> globals) :
+FCGIServer::FCGIServer(std::shared_ptr<Globals> globals) :
 	globals_(globals), stopper_(new ServerStopper()), active_thread_holder_(new char(0)),
 	monitorSocket_(-1), request_cache_(NULL), time_statistics_(NULL), status_(NOT_INITED)
 {}
@@ -76,7 +76,7 @@ FCGIServer::logger() const {
 
 FCGIServer::Status
 FCGIServer::status() const {
-	boost::mutex::scoped_lock l(statusInfoMutex_);
+	std::lock_guard<std::mutex> l(statusInfoMutex_);
 	return status_;
 }
 
@@ -99,14 +99,16 @@ FCGIServer::start() {
 	createWorkThreads();
 
 	{
-		boost::mutex::scoped_lock l(statusInfoMutex_);
+		std::lock_guard<std::mutex> l(statusInfoMutex_);
 		status_ = RUNNING;
 	}
 
 	if (-1 == pipe(stopPipes_)) {
 		throw std::runtime_error("Cannot create stop signal pipes");
 	}
-	stopThread_.reset(new boost::thread(boost::bind(&FCGIServer::stopThreadFunction, this)));
+
+	stopThread_.reset(new std::thread(&FCGIServer::stopThreadFunction, this));
+	stopThread_->detach();
 }
 
 void
@@ -182,7 +184,8 @@ FCGIServer::initMonitorThread() {
 		throw std::runtime_error("Cannot listen monitor port");
 	}
 
-	monitorThread_.reset(new boost::thread(boost::bind(&FCGIServer::monitor, this)));
+	monitorThread_.reset(new std::thread(&FCGIServer::monitor, this));
+	monitorThread_->detach();
 }
 
 void
@@ -218,10 +221,8 @@ FCGIServer::initTimeStatistics() {
 
 void
 FCGIServer::createWorkThreads() {
-	for (std::vector<boost::shared_ptr<Endpoint> >::iterator i = endpoints_.begin();
-		 i != endpoints_.end();
-		 ++i) {
-		boost::function<void()> f = boost::bind(&FCGIServer::handle, this, i->get());
+	for (std::vector<std::shared_ptr<Endpoint> >::iterator i = endpoints_.begin();i != endpoints_.end(); ++i) {
+		boost::function<void()> f = std::bind(&FCGIServer::handle, this, i->get());
 		for (unsigned short t = 0; t < (*i)->threads(); ++t) {
 			globalPool_.create_thread(f);
 		}
@@ -237,7 +238,7 @@ FCGIServer::initFastCGISubsystem() {
 	std::vector<std::string> v;
 	globals_->config()->subKeys("/fastcgi/daemon/endpoint", v);
 	for (std::vector<std::string>::iterator i = v.begin(), end = v.end(); i != end; ++i) {
-		boost::shared_ptr<Endpoint> endpoint(new Endpoint(
+		std::shared_ptr<Endpoint> endpoint(new Endpoint(
 			globals_->config()->asString(*i + "/socket", ""),
 			globals_->config()->asString(*i + "/port", ""),
 			boost::lexical_cast<unsigned>(globals_->config()->asString(*i + "/threads"))));
@@ -253,19 +254,19 @@ FCGIServer::initFastCGISubsystem() {
 
 void
 FCGIServer::handle(Endpoint *endpoint) {
-	boost::shared_ptr<ServerStopper> stopper = stopper_;
+	std::shared_ptr<ServerStopper> stopper = stopper_;
 	Logger* logger = globals_->logger();
 	while (true) {
 		try {
 			if (stopper->stopped()) {
 				return;
 			}
-			boost::shared_ptr<ThreadHolder> holder = active_thread_holder_;
+			std::shared_ptr<ThreadHolder> holder = active_thread_holder_;
 
 			Endpoint::ScopedBusyCounter busyCounter(*endpoint);
 			RequestTask task;
-			task.request = boost::shared_ptr<Request>(new Request(logger, request_cache_));
-			task.request_stream = boost::shared_ptr<RequestIOStream>(
+			task.request = std::shared_ptr<Request>(new Request(logger, request_cache_));
+			task.request_stream = std::shared_ptr<RequestIOStream>(
 				new FastcgiRequest(task.request, endpoint, logger, time_statistics_, logTimes_));
 
 			FastcgiRequest *request = dynamic_cast<FastcgiRequest*>(task.request_stream.get());
@@ -319,7 +320,7 @@ FCGIServer::handleRequest(RequestTask task) {
 
 void
 FCGIServer::monitor() {
-    boost::shared_ptr<ServerStopper> stopper = stopper_;
+    std::shared_ptr<ServerStopper> stopper = stopper_;
 	while (true) {
 		if (stopper->stopped()) {
 			return;
@@ -415,7 +416,7 @@ FCGIServer::getServerInfo() const {
 
 		std::stringstream s;
 		s << "<endpoint_pools>\n";
-		for (std::vector<boost::shared_ptr<Endpoint> >::const_iterator i = endpoints_.begin();
+		for (std::vector<std::shared_ptr<Endpoint> >::const_iterator i = endpoints_.begin();
 			 i != endpoints_.end();
 			 ++i) {
 			s << "<endpoint"

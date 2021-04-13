@@ -14,32 +14,32 @@
 namespace fastcgi
 {
 
-StringBuffer::StringBuffer(const char *data, boost::uint64_t size) :
+StringBuffer::StringBuffer(const char *data, std::uint64_t size) :
 	data_(new std::vector<char>(data, data + size))
 {}
 
 StringBuffer::~StringBuffer()
 {}
 
-boost::uint64_t
-StringBuffer::read(boost::uint64_t pos, char *data, boost::uint64_t len) {
+std::uint64_t
+StringBuffer::read(std::uint64_t pos, char *data, std::uint64_t len) {
 	memcpy(data, &((*data_)[pos]), len);
 	return len;
 }
 
-boost::uint64_t
-StringBuffer::write(boost::uint64_t pos, const char *data, boost::uint64_t len) {
+std::uint64_t
+StringBuffer::write(std::uint64_t pos, const char *data, std::uint64_t len) {
 	memcpy(&((*data_)[pos]), data, len);
 	return len;
 }
 
 char
-StringBuffer::at(boost::uint64_t pos) {
+StringBuffer::at(std::uint64_t pos) {
 	return data_->at(pos);
 }
 
-boost::uint64_t
-StringBuffer::find(boost::uint64_t begin, boost::uint64_t end, const char* buf, boost::uint64_t len) {
+std::uint64_t
+StringBuffer::find(std::uint64_t begin, std::uint64_t end, const char* buf, std::uint64_t len) {
 	if (len > end - begin) {
 		return end;
 	}
@@ -49,32 +49,32 @@ StringBuffer::find(boost::uint64_t begin, boost::uint64_t end, const char* buf, 
 	return base.find(substr) - first;
 }
 
-std::pair<boost::uint64_t, boost::uint64_t>
-StringBuffer::trim(boost::uint64_t begin, boost::uint64_t end) const {
+std::pair<std::uint64_t, std::uint64_t>
+StringBuffer::trim(std::uint64_t begin, std::uint64_t end) const {
 	char* first = &((*data_)[0]);
 	Range base(first + begin, first + end);
 	Range trimmed = base.trim();
-	return std::pair<boost::uint64_t, boost::uint64_t>(
+	return std::pair<std::uint64_t, std::uint64_t>(
 		trimmed.begin() - first, trimmed.end() - first);
 }
 
-std::pair<char*, boost::uint64_t>
-StringBuffer::chunk(boost::uint64_t pos) const {
-	return std::pair<char*, boost::uint64_t>(&((*data_)[0]) + pos, data_->size() - pos);
+std::pair<char*, std::uint64_t>
+StringBuffer::chunk(std::uint64_t pos) const {
+	return std::pair<char*, std::uint64_t>(&((*data_)[0]) + pos, data_->size() - pos);
 }
 
-std::pair<boost::uint64_t, boost::uint64_t>
-StringBuffer::segment(boost::uint64_t pos) const {
-	return std::pair<boost::uint64_t, boost::uint64_t>(pos, size());
+std::pair<std::uint64_t, std::uint64_t>
+StringBuffer::segment(std::uint64_t pos) const {
+	return std::pair<std::uint64_t, std::uint64_t>(pos, size());
 }
 
-boost::uint64_t
+std::uint64_t
 StringBuffer::size() const {
 	return data_->size();
 }
 
 void
-StringBuffer::resize(boost::uint64_t size) {
+StringBuffer::resize(std::uint64_t size) {
 	data_->resize(size);
 }
 

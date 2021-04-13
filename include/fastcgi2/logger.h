@@ -19,6 +19,8 @@
 #define _FASTCGI_LOGGER_H_
 
 #include <cstdarg>
+#include <string>
+
 #include <boost/utility.hpp>
 
 namespace fastcgi

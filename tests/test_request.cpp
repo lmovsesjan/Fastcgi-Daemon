@@ -42,7 +42,7 @@ private:
 	void testMultipartRN2Impl(RequestCache* cache);
 
 private:
-	std::auto_ptr<Logger> logger_;
+	std::unique_ptr<Logger> logger_;
 
 	CPPUNIT_TEST_SUITE(RequestTest);
 	CPPUNIT_TEST(testGet);
@@ -86,7 +86,7 @@ void
 RequestTest::testEmptyGet() {
 	char *env[] = { "REQUEST_METHOD=GET", "QUERY_STRING=", "HTTP_HOST=yandex.ru", NULL };
 
-	std::auto_ptr<Request> req(new Request(logger_.get(), NULL));
+	std::unique_ptr<Request> req(new Request(logger_.get(), NULL));
 
 	std::stringstream in, out;
 	TestIOStream stream(&in, &out);
@@ -100,7 +100,7 @@ RequestTest::testEmptyGet() {
 void
 RequestTest::testGet() {
 	char *env[] = { "REQUEST_METHOD=GET", "QUERY_STRING=test=pass&success=try%20again", "HTTP_HOST=yandex.ru", NULL };
-	std::auto_ptr<Request> req(new Request(logger_.get(), NULL));
+	std::unique_ptr<Request> req(new Request(logger_.get(), NULL));
 
 	std::stringstream in, out;
 	TestIOStream stream(&in, &out);
@@ -119,7 +119,7 @@ RequestTest::testCookie() {
 	char *env[] = { "REQUEST_METHOD=GET", "QUERY_STRING=test=pass&success=try%20again", "HTTP_HOST=yandex.ru", 
 		"HTTP_COOKIE=yandexuid=921562781154947430; yandex_login=highpower; my=Yx4CAAA", NULL };
 	
-	std::auto_ptr<Request> req(new Request(logger_.get(), NULL));
+	std::unique_ptr<Request> req(new Request(logger_.get(), NULL));
 	std::stringstream in, out;
 	TestIOStream stream(&in, &out);
 	req->attach(&stream, env);
@@ -160,7 +160,7 @@ RequestTest::testMultipartRN2() {
 void
 RequestTest::testPostImpl(RequestCache *cache) {
 	char *env[] = { "REQUEST_METHOD=POST", "HTTP_CONTENT_LENGTH=29", "HTTP_HOST=yandex.ru", NULL };
-	std::auto_ptr<Request> req(new Request(logger_.get(), cache));
+	std::unique_ptr<Request> req(new Request(logger_.get(), cache));
 
 	std::stringstream in("test=pass&success=try%20again"), out;
 	TestIOStream stream(&in, &out);
@@ -177,7 +177,7 @@ RequestTest::testPostImpl(RequestCache *cache) {
 
 void
 RequestTest::testMultipartNImpl(RequestCache *cache) {
-	std::auto_ptr<Request> req(new Request(logger_.get(), cache));
+	std::unique_ptr<Request> req(new Request(logger_.get(), cache));
 
 	char *env[] = { "REQUEST_METHOD=POST", "HTTP_HOST=yandex.ru", "HTTP_CONTENT_LENGTH=1508", 
 		"CONTENT_TYPE=multipart/form-data; boundary=---------------------------15403834263040891721303455736", NULL };
@@ -198,12 +198,12 @@ RequestTest::testMultipartNImpl(RequestCache *cache) {
 	CPPUNIT_ASSERT_EQUAL(true, req->hasFile("uploaded"));
 	DataBuffer file = req->remoteFile("uploaded");
 
-	CPPUNIT_ASSERT_EQUAL((boost::uint64_t)887, file.size());
+	CPPUNIT_ASSERT_EQUAL((std::uint64_t)887, file.size());
 }
 
 void
 RequestTest::testMultipartRNImpl(RequestCache *cache) {
-	std::auto_ptr<Request> req(new Request(logger_.get(), cache));
+	std::unique_ptr<Request> req(new Request(logger_.get(), cache));
 
 	char *env[] = { "REQUEST_METHOD=POST", "HTTP_HOST=yandex.ru", "HTTP_CONTENT_LENGTH=1361", 
 		"CONTENT_TYPE=multipart/form-data; boundary=\"---------------------------15403834263040891721303455736\"", NULL };
@@ -222,12 +222,12 @@ RequestTest::testMultipartRNImpl(RequestCache *cache) {
 	
 	CPPUNIT_ASSERT_EQUAL(true, req->hasFile("uploaded"));
 	DataBuffer file = req->remoteFile("uploaded");
-	CPPUNIT_ASSERT_EQUAL((boost::uint64_t)887, file.size());
+	CPPUNIT_ASSERT_EQUAL((std::uint64_t)887, file.size());
 }
 
 void
 RequestTest::testMultipartRN2Impl(RequestCache *cache) {
-	std::auto_ptr<Request> req(new Request(logger_.get(), cache));
+	std::unique_ptr<Request> req(new Request(logger_.get(), cache));
 
 	char *env[] = { "REQUEST_METHOD=POST", "HTTP_HOST=yandex.ru", "HTTP_CONTENT_LENGTH=485",
 		"CONTENT_TYPE=multipart/form-data; boundary=\"AaB03x\"", NULL };

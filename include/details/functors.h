@@ -23,8 +23,7 @@
 #include <cstring>
 #include <algorithm>
 #include <functional>
-#include <boost/bind.hpp>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #include "settings.h"
 #include "details/range.h"
@@ -48,10 +47,10 @@ struct RangeCILess : public std::binary_function<const Range&, const Range&, boo
 
 #if defined(HAVE_GNUCXX_HASHMAP) || defined(HAVE_EXT_HASH_MAP) || defined(HAVE_STLPORT_HASHMAP)
 
-struct StringCIHash : public std::unary_function<const std::string&, boost::uint32_t>
+struct StringCIHash : public std::unary_function<const std::string&, std::uint32_t>
 {
-	boost::uint32_t operator () (const std::string &str) const {
-		boost::uint32_t value = 0;
+	std::uint32_t operator () (const std::string &str) const {
+		std::uint32_t value = 0;
 		for (std::string::const_iterator i = str.begin(), end = str.end(); i != end; ++i) {
 			value += 5 * tolower(*i);
 		}

@@ -6,13 +6,12 @@
 #include <cstring>
 #include <cstdio>
 #include <iostream>
+#include <functional>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-
-#include <boost/bind.hpp>
 
 #include "fastcgi2/component_factory.h"
 #include "fastcgi2/config.h"
@@ -29,7 +28,7 @@ FileLogger::FileLogger(ComponentContext *context) : Component(context),
         openMode_(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH),
         print_level_(true), print_time_(true),
         fd_(-1), stopping_(false),
-        writingThread_(boost::bind(&FileLogger::writingThread, this))
+        writingThread_(std::bind(&FileLogger::writingThread, this))
 {
     const Config *config = context->getConfig();
     const std::string componentXPath = context->getComponentXPath();
@@ -93,7 +92,7 @@ FileLogger::onUnload() {
 }
 
 void FileLogger::openFile() {
-    boost::mutex::scoped_lock fdLock(fdMutex_);
+    std::lock_guard<std::mutex> fdLock(fdMutex_);
     if (fd_ != -1) {
         close(fd_);
     }
@@ -130,7 +129,7 @@ FileLogger::log(const Logger::Level level, const char* format, va_list args) {
     if (size > 0) {
         std::vector<char> data(size + 1);
         vsnprintf(&data[0], size + 1, fmt, args);
-        boost::mutex::scoped_lock lock(queueMutex_);
+        std::lock_guard<std::mutex> lock(queueMutex_);
         queue_.push_back(std::string(data.begin(), data.begin() + size));
         queueCondition_.notify_one();
     }
@@ -173,12 +172,12 @@ FileLogger::writingThread() {
     while (!stopping_) {
         std::vector<std::string> queueCopy;
         {
-            boost::mutex::scoped_lock lock(queueMutex_);
+            std::unique_lock<std::mutex> lock(queueMutex_);
             queueCondition_.wait(lock);
             std::swap(queueCopy, queue_);
         }
 
-        boost::mutex::scoped_lock fdlock(fdMutex_);
+        std::lock_guard<std::mutex> fdlock(fdMutex_);
         if (fd_ != -1) {
             for (std::vector<std::string>::iterator i = queueCopy.begin(); i != queueCopy.end(); ++i) {
                 size_t wrote = 0;

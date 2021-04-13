@@ -24,7 +24,6 @@
 #include <memory>
 #include <iosfwd>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
 
 namespace fastcgi
@@ -45,8 +44,8 @@ public:
 	
 	virtual void subKeys(const std::string &value, std::vector<std::string> &v) const = 0;
 	
-	static std::auto_ptr<Config> create(const char *file);
-	static std::auto_ptr<Config> create(int &argc, char *argv[], HelpFunc func = NULL);
+	static std::unique_ptr<Config> create(const char *file);
+	static std::unique_ptr<Config> create(int &argc, char *argv[], HelpFunc func = NULL);
 
 	const std::string& filename() const;
 

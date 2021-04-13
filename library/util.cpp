@@ -94,7 +94,7 @@ StringUtils::urldecode(DataBuffer data) {
 	std::string result;
 	result.reserve(data.size());
 	for (DataBuffer::SegmentIterator it = data.begin(); it != data.end(); ++it) {
-		std::pair<char*, boost::uint64_t> chunk = *it;
+		std::pair<char*, std::uint64_t> chunk = *it;
 		urldecode(Range(chunk.first, chunk.first + chunk.second), result);
 	}
 	return result;
@@ -105,7 +105,7 @@ StringUtils::parse(const Range &range, std::vector<NamedValue> &v) {
 	
 	Range tmp = range;
 	while (!tmp.empty()) {
-		Range key, value, head, tail;
+		Range key, value, head, tail, normalize;
 		
 		tmp.split('&', head, tail);
 		head.split('=', key, value);
@@ -145,7 +145,15 @@ StringUtils::parse(DataBuffer data, std::vector<NamedValue> &v) {
 
 void
 StringUtils::parse(const std::string &str, std::vector<NamedValue> &v) {
-	parse(Range::fromString(str), v);
+	std::string m(str);
+	size_t pos = 0;
+        while ((pos = m.find("%26")) != std::string::npos){
+            m.replace(pos, 3, "&");
+        }
+
+        const std::string s(m);
+
+	parse(Range::fromString(s), v);
 }
 
 std::string

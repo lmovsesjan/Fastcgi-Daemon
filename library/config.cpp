@@ -27,18 +27,18 @@ Config::Config()
 Config::~Config() {
 }
 
-std::auto_ptr<Config>
+std::unique_ptr<Config>
 Config::create(const char *file) {
-	return std::auto_ptr<Config>(new XmlConfig(file));
+	return std::unique_ptr<Config>(new XmlConfig(file));
 }
 
-std::auto_ptr<Config>
+std::unique_ptr<Config>
 Config::create(int &argc, char *argv[], HelpFunc func) {
 	for (int i = 1; i < argc; ++i) {
 		if (strncmp(argv[i], "--config", sizeof("--config") - 1) == 0) {
 			const char *pos = strchr(argv[i], '=');
 			if (NULL != pos) {
-				std::auto_ptr<Config> conf(new XmlConfig(pos + 1));
+				std::unique_ptr<Config> conf(new XmlConfig(pos + 1));
 				std::swap(argv[i], argv[argc - 1]);
 				--argc;
 				return conf;

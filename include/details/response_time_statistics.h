@@ -19,8 +19,7 @@
 #define _FASTCGI_DETAILS_RESPONSE_TIME_STATISTICS_H_
 
 #include <string>
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace fastcgi
 {
@@ -30,7 +29,7 @@ public:
 	ResponseTimeStatistics();
 	virtual ~ResponseTimeStatistics();
 
-	virtual void add(const std::string &handler, unsigned short status, boost::uint64_t time) = 0;
+	virtual void add(const std::string &handler, unsigned short status, std::uint64_t time) = 0;
 };
 
 } // namespace fastcgi

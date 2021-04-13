@@ -19,7 +19,8 @@
 #define _FASTCGI_DETAILS_REQUEST_CACHE_H_
 
 #include <time.h>
-#include <boost/cstdint.hpp>
+#include <cstdint>
+
 #include <boost/noncopyable.hpp>
 
 namespace fastcgi
@@ -35,7 +36,7 @@ public:
 
 	virtual DataBuffer create() = 0;
 	virtual void save(Request *request, time_t delay) = 0;
-	virtual boost::uint32_t minPostSize() const = 0;
+	virtual std::uint32_t minPostSize() const = 0;
 };
 
 } // namespace fastcgi

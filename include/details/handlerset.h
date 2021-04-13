@@ -39,7 +39,7 @@ class HandlerSet : private boost::noncopyable
 {
 public:
 	struct HandlerDescription {
-		typedef std::vector<std::pair<std::string, boost::shared_ptr<RequestFilter> > > FilterArray;
+		typedef std::vector<std::pair<std::string, std::shared_ptr<RequestFilter> > > FilterArray;
 		FilterArray filters;
 		std::vector<Handler*> handlers;
 		std::string poolName;

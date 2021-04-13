@@ -440,10 +440,10 @@ RequestImpl::attach(RequestIOStream *stream, char *env[]) {
 	}
 
 	DataBuffer post_buffer;
-	boost::uint64_t size = getContentLength();
+	std::uint64_t size = getContentLength();
 	if (cache_ && size >= cache_->minPostSize()) {
 		post_buffer = cache_->create();
-		boost::uint64_t shift = serializeEnv(post_buffer, size + sizeof(boost::uint64_t));
+		std::uint64_t shift = serializeEnv(post_buffer, size + sizeof(std::uint64_t));
 		shift = serializeInt(post_buffer, shift, size);
 		body_ = DataBuffer(post_buffer, post_buffer.beginIndex() + shift, post_buffer.endIndex());
 	}
@@ -451,7 +451,7 @@ RequestImpl::attach(RequestIOStream *stream, char *env[]) {
 		body_ = DataBuffer::create(StringUtils::EMPTY_STRING.c_str(), 0);
 		body_.resize(size);
 	}
-	boost::uint64_t rsz = 0;
+	std::uint64_t rsz = 0;
 	for (DataBuffer::SegmentIterator it = body_.begin(), end;
 		 it != end;
 		 ++it) {
@@ -482,8 +482,8 @@ RequestImpl::attach(RequestIOStream *stream, char *env[]) {
 	}
 
 	if (!post_buffer.isNil()) {
-		boost::uint64_t pos = post_buffer.size();
-		post_buffer.resize(pos + 2 * sizeof(boost::uint64_t) +
+		std::uint64_t pos = post_buffer.size();
+		post_buffer.resize(pos + 2 * sizeof(std::uint64_t) +
 			filesSerializedSize() + argsSerializedSize());
 		pos = serializeFiles(post_buffer, pos);
 		pos = serializeArgs(post_buffer, pos);
@@ -540,36 +540,36 @@ RequestImpl::tryAgain(time_t delay) {
 	delay_ = delay;
 }
 
-boost::uint64_t
-RequestImpl::serializeEnv(DataBuffer &buffer, boost::uint64_t add_size) {
-	boost::uint64_t header_size = 0;
+std::uint64_t
+RequestImpl::serializeEnv(DataBuffer &buffer, std::uint64_t add_size) {
+	std::uint64_t header_size = 0;
 	for (HeaderMap::iterator it = headers_.begin(), end = headers_.end();
 		 it != end;
 		 ++it) {
 		header_size += it->first.size();
 		header_size += it->second.size();
-		header_size += 2*sizeof(boost::uint64_t);
+		header_size += 2*sizeof(std::uint64_t);
 	}
-	boost::uint64_t cookie_size = 0;
+	std::uint64_t cookie_size = 0;
 	for (VarMap::iterator it = cookies_.begin(), end = cookies_.end();
 		 it != end;
 		 ++it) {
 		cookie_size += it->first.size();
 		cookie_size += it->second.size();
-		cookie_size += 2*sizeof(boost::uint64_t);
+		cookie_size += 2*sizeof(std::uint64_t);
 	}
-	boost::uint64_t var_size = 0;
+	std::uint64_t var_size = 0;
 	for (VarMap::iterator it = vars_.begin(), end = vars_.end();
 		 it != end;
 		 ++it) {
 		var_size += it->first.size();
 		var_size += it->second.size();
-		var_size += 2*sizeof(boost::uint64_t);
+		var_size += 2*sizeof(std::uint64_t);
 	}
 	buffer.resize(add_size + header_size + cookie_size +
-		var_size + 3*sizeof(boost::uint64_t));
+		var_size + 3*sizeof(std::uint64_t));
 
-	boost::uint64_t pos = 0;
+	std::uint64_t pos = 0;
 	pos = serializeInt(buffer, pos, header_size);
 	for (HeaderMap::iterator it = headers_.begin(), end = headers_.end();
 		 it != end;
@@ -595,86 +595,86 @@ RequestImpl::serializeEnv(DataBuffer &buffer, boost::uint64_t add_size) {
 	return pos;
 }
 
-boost::uint64_t
-RequestImpl::serializeInt(DataBuffer &buffer, boost::uint64_t pos,
-	boost::uint64_t val) {
+std::uint64_t
+RequestImpl::serializeInt(DataBuffer &buffer, std::uint64_t pos,
+	std::uint64_t val) {
 	pos += buffer.write(pos, (char*)&val, sizeof(val));
 	return pos;
 }
 
-boost::uint64_t
-RequestImpl::serializeString(DataBuffer &buffer, boost::uint64_t pos,
+std::uint64_t
+RequestImpl::serializeString(DataBuffer &buffer, std::uint64_t pos,
 	const std::string &val) {
-	boost::uint64_t size = val.size();
+	std::uint64_t size = val.size();
 	pos = serializeInt(buffer, pos, size);
 	pos += buffer.write(pos, val.c_str(), size);
 	return pos;
 }
 
-boost::uint64_t
-RequestImpl::serializeBuffer(DataBuffer &buffer, boost::uint64_t pos,
+std::uint64_t
+RequestImpl::serializeBuffer(DataBuffer &buffer, std::uint64_t pos,
 	const DataBuffer &src) {
 	pos = serializeInt(buffer, pos, src.size());
 	for (DataBuffer::SegmentIterator it = src.begin(), end;
 		 it != end;
 		 ++it) {
-		std::pair<char*, boost::uint64_t> chunk = *it;
+		std::pair<char*, std::uint64_t> chunk = *it;
 		pos += buffer.write(pos, chunk.first, chunk.second);
 	}
 	return pos;
 }
 
-boost::uint64_t
+std::uint64_t
 RequestImpl::filesSerializedSize() {
-	boost::uint64_t file_size = 0;
+	std::uint64_t file_size = 0;
 	for (std::map<std::string, File>::iterator it = files_.begin(), end = files_.end();
 		 it != end;
 		 ++it) {
-		file_size += sizeof(boost::uint64_t);
+		file_size += sizeof(std::uint64_t);
 		file_size += it->first.size();
-		file_size += sizeof(boost::uint64_t);
+		file_size += sizeof(std::uint64_t);
 		file_size += it->second.remoteName().size();
-		file_size += sizeof(boost::uint64_t);
+		file_size += sizeof(std::uint64_t);
 		file_size += it->second.type().size();
-		file_size += 2 * sizeof(boost::uint64_t);
+		file_size += 2 * sizeof(std::uint64_t);
 	}
 	return file_size;
 }
 
-boost::uint64_t
+std::uint64_t
 RequestImpl::argsSerializedSize() {
-	boost::uint64_t arg_size = 0;
+	std::uint64_t arg_size = 0;
 	for (std::vector<StringUtils::NamedValue>::iterator it = args_.begin(),
 			end = args_.end();
 		 it != end;
 		 ++it) {
 		arg_size += it->first.size();
 		arg_size += it->second.size();
-		arg_size += 2 * sizeof(boost::uint64_t);
+		arg_size += 2 * sizeof(std::uint64_t);
 	}
 	return arg_size;
 }
 
 void
 RequestImpl::serialize(DataBuffer &buffer) {
-	boost::uint64_t add_size = 0;
-	add_size += sizeof(boost::uint64_t);
+	std::uint64_t add_size = 0;
+	add_size += sizeof(std::uint64_t);
 	add_size += body_.size();
-	add_size += sizeof(boost::uint64_t);
-	boost::uint64_t file_size = filesSerializedSize();
+	add_size += sizeof(std::uint64_t);
+	std::uint64_t file_size = filesSerializedSize();
 	add_size += file_size;
-	add_size += sizeof(boost::uint64_t);
-	boost::uint64_t arg_size = argsSerializedSize();
+	add_size += sizeof(std::uint64_t);
+	std::uint64_t arg_size = argsSerializedSize();
 	add_size += arg_size;
-	boost::uint64_t pos = serializeEnv(buffer, add_size);
+	std::uint64_t pos = serializeEnv(buffer, add_size);
 	pos = serializeBuffer(buffer, pos, body_);
 	pos = serializeFiles(buffer, pos);
 	pos = serializeArgs(buffer, pos);
 }
 
-boost::uint64_t
-RequestImpl::serializeFiles(DataBuffer &buffer, boost::uint64_t pos) {
-	boost::uint64_t file_size = filesSerializedSize();
+std::uint64_t
+RequestImpl::serializeFiles(DataBuffer &buffer, std::uint64_t pos) {
+	std::uint64_t file_size = filesSerializedSize();
 	pos = serializeInt(buffer, pos, file_size);
 	for (std::map<std::string, File>::iterator it = files_.begin(), end = files_.end();
 		 it != end;
@@ -689,9 +689,9 @@ RequestImpl::serializeFiles(DataBuffer &buffer, boost::uint64_t pos) {
 	return pos;
 }
 
-boost::uint64_t
-RequestImpl::serializeArgs(DataBuffer &buffer, boost::uint64_t pos) {
-	boost::uint64_t arg_size = argsSerializedSize();
+std::uint64_t
+RequestImpl::serializeArgs(DataBuffer &buffer, std::uint64_t pos) {
+	std::uint64_t arg_size = argsSerializedSize();
 	pos = serializeInt(buffer, pos, arg_size);
 	for (std::vector<StringUtils::NamedValue>::iterator it = args_.begin(),
 			end = args_.end();
@@ -703,27 +703,27 @@ RequestImpl::serializeArgs(DataBuffer &buffer, boost::uint64_t pos) {
 	return pos;
 }
 
-boost::uint64_t
-RequestImpl::parseInt(DataBuffer buffer, boost::uint64_t pos,
-	boost::uint64_t &val) {
+std::uint64_t
+RequestImpl::parseInt(DataBuffer buffer, std::uint64_t pos,
+	std::uint64_t &val) {
 	pos += buffer.read(pos, (char*)&val, sizeof(val));
 	return pos;
 }
 
-boost::uint64_t
-RequestImpl::parseString(DataBuffer buffer, boost::uint64_t pos, std::string &val) {
-	boost::uint64_t len = 0;
+std::uint64_t
+RequestImpl::parseString(DataBuffer buffer, std::uint64_t pos, std::string &val) {
+	std::uint64_t len = 0;
 	pos = parseInt(buffer, pos, len);
 	val.resize(len);
 	pos += buffer.read(pos, (char*)&(val[0]), len);
 	return pos;
 }
 
-boost::uint64_t
-RequestImpl::parseHeaders(DataBuffer buffer, boost::uint64_t pos) {
-    boost::uint64_t field_size = 0;
+std::uint64_t
+RequestImpl::parseHeaders(DataBuffer buffer, std::uint64_t pos) {
+    std::uint64_t field_size = 0;
     pos = parseInt(buffer, pos, field_size);
-    boost::uint64_t pos_end = pos + field_size;
+    std::uint64_t pos_end = pos + field_size;
     if (pos_end > buffer.size()) {
     	throw std::runtime_error("Cannot parse request headers");
     }
@@ -736,11 +736,11 @@ RequestImpl::parseHeaders(DataBuffer buffer, boost::uint64_t pos) {
     return pos;
 }
 
-boost::uint64_t
-RequestImpl::parseCookies(DataBuffer buffer, boost::uint64_t pos) {
-    boost::uint64_t field_size = 0;
+std::uint64_t
+RequestImpl::parseCookies(DataBuffer buffer, std::uint64_t pos) {
+    std::uint64_t field_size = 0;
     pos = parseInt(buffer, pos, field_size);
-    boost::uint64_t pos_end = pos + field_size;
+    std::uint64_t pos_end = pos + field_size;
     if (pos_end > buffer.size()) {
     	throw std::runtime_error("Cannot parse request cookies");
     }
@@ -753,11 +753,11 @@ RequestImpl::parseCookies(DataBuffer buffer, boost::uint64_t pos) {
     return pos;
 }
 
-boost::uint64_t
-RequestImpl::parseVars(DataBuffer buffer, boost::uint64_t pos) {
-	boost::uint64_t field_size = 0;
+std::uint64_t
+RequestImpl::parseVars(DataBuffer buffer, std::uint64_t pos) {
+	std::uint64_t field_size = 0;
 	pos = parseInt(buffer, pos, field_size);
-	boost::uint64_t pos_end = pos + field_size;
+	std::uint64_t pos_end = pos + field_size;
 	if (pos_end > buffer.size()) {
 		throw std::runtime_error("Cannot parse request vars");
 	}
@@ -770,11 +770,11 @@ RequestImpl::parseVars(DataBuffer buffer, boost::uint64_t pos) {
 	return pos;
 }
 
-boost::uint64_t
-RequestImpl::parseBody(DataBuffer buffer, boost::uint64_t pos) {
-	boost::uint64_t field_size = 0;
+std::uint64_t
+RequestImpl::parseBody(DataBuffer buffer, std::uint64_t pos) {
+	std::uint64_t field_size = 0;
 	pos = parseInt(buffer, pos, field_size);
-	boost::uint64_t pos_end = pos + field_size;
+	std::uint64_t pos_end = pos + field_size;
 	if (pos_end > buffer.size()) {
 		throw std::runtime_error("Cannot parse request body");
 	}
@@ -782,11 +782,11 @@ RequestImpl::parseBody(DataBuffer buffer, boost::uint64_t pos) {
 	return pos_end;
 }
 
-boost::uint64_t
-RequestImpl::parseFiles(DataBuffer buffer, boost::uint64_t pos) {
-	boost::uint64_t field_size = 0;
+std::uint64_t
+RequestImpl::parseFiles(DataBuffer buffer, std::uint64_t pos) {
+	std::uint64_t field_size = 0;
 	pos = parseInt(buffer, pos, field_size);
-	boost::uint64_t pos_end = pos + field_size;
+	std::uint64_t pos_end = pos + field_size;
 	if (pos_end > buffer.size()) {
 		throw std::runtime_error("Cannot parse request files");
 	}
@@ -795,8 +795,8 @@ RequestImpl::parseFiles(DataBuffer buffer, boost::uint64_t pos) {
 		pos = parseString(buffer, pos, name);
 		pos = parseString(buffer, pos, remote_name);
 		pos = parseString(buffer, pos, type);
-		boost::uint64_t offset = 0;
-		boost::uint64_t length = 0;
+		std::uint64_t offset = 0;
+		std::uint64_t length = 0;
 		pos = parseInt(buffer, pos, offset);
 		pos = parseInt(buffer, pos, length);
 		DataBuffer file_buffer = DataBuffer(body_, offset + body_.beginIndex(),
@@ -806,11 +806,11 @@ RequestImpl::parseFiles(DataBuffer buffer, boost::uint64_t pos) {
 	return pos;
 }
 
-boost::uint64_t
-RequestImpl::parseArgs(DataBuffer buffer, boost::uint64_t pos) {
-	boost::uint64_t field_size = 0;
+std::uint64_t
+RequestImpl::parseArgs(DataBuffer buffer, std::uint64_t pos) {
+	std::uint64_t field_size = 0;
 	pos = parseInt(buffer, pos, field_size);
-	boost::uint64_t pos_end = pos + field_size;
+	std::uint64_t pos_end = pos + field_size;
 	if (pos_end > buffer.size()) {
 		throw std::runtime_error("Cannot parse request args");
 	}
@@ -818,7 +818,6 @@ RequestImpl::parseArgs(DataBuffer buffer, boost::uint64_t pos) {
 		std::string name, value;
 		pos = parseString(buffer, pos, name);
 		pos = parseString(buffer, pos, value);
-
 		if (std::string::npos != value.find('\r') || std::string::npos != value.find('\n') ||
 			std::string::npos != value.find('\0')) {
 			value = StringUtils::urlencode(Range::fromString(value));
@@ -831,7 +830,7 @@ RequestImpl::parseArgs(DataBuffer buffer, boost::uint64_t pos) {
 
 void
 RequestImpl::parse(DataBuffer buffer) {
-	boost::uint64_t pos = parseHeaders(buffer, 0);
+	std::uint64_t pos = parseHeaders(buffer, 0);
 	pos = parseCookies(buffer, pos);
 	pos = parseVars(buffer, pos);
 	pos = parseBody(buffer, pos);

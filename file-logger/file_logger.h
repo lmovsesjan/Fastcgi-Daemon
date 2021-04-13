@@ -4,10 +4,9 @@
 #include <vector>
 #include <string>
 #include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
-
 #include "fastcgi2/component.h"
 #include "fastcgi2/logger.h"
+#include <condition_variable>
 
 namespace fastcgi
 {
@@ -41,7 +40,7 @@ private:
     int fd_;
 
     // Lock of file descriptor to avoid logrotate race-condition
-    boost::mutex fdMutex_;
+    std::mutex fdMutex_;
 
 
     // Writing queue.
@@ -55,12 +54,11 @@ private:
     std::vector<std::string> queue_;
 
     // Condition and mutex for signalling.
-    boost::condition queueCondition_;
-    boost::mutex queueMutex_;
+    std::condition_variable queueCondition_;
+    std::mutex queueMutex_;
 
     // Writing thread.
     boost::thread writingThread_;
-
 
     void openFile();
     void prepareFormat(char * buf, size_t size, const Logger::Level level, const char* format);

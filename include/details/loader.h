@@ -19,7 +19,6 @@
 #define _FASTCGI_DETAILS_LOADER_H_
 
 #include <boost/utility.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <string>
 #include <vector>

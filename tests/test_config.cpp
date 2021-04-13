@@ -28,7 +28,7 @@ ConfigTest::testConfig() {
 	using namespace fastcgi;
 	
 	std::vector<std::string> v;
-	std::auto_ptr<Config> config = Config::create("test.conf");
+	std::unique_ptr<Config> config = Config::create("test.conf");
 	
 	CPPUNIT_ASSERT_EQUAL(10, config->asInt("/fastcgi/daemon/endpoint/backlog"));
 	CPPUNIT_ASSERT_EQUAL(std::string("/tmp/example.sock"), config->asString("/fastcgi/daemon/endpoint/socket"));
